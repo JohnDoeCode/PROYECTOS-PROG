@@ -1,3 +1,5 @@
+Variable_1 = 1
+Variable_2 = 2
 #<----->
 #Recursos importantes:
 import re
