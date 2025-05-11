@@ -1,43 +1,78 @@
-"""Consigna:Programa que calcule el precio a pagar según la cantidad y 
-tipo de toneladas de yerba mate a comprar (toneladas ingresadas por teclado).
-
-Tener cuenta los siguientes descuentos:
-más de 1 tonelada: 10% dto
-más de 2 toneladas: 20% dto
-más de 5 toneladas: 35% dto ✅ 
-
-El precio base de la tonelada es:
-$ 36.830 para la tonelada de hoja verde (tipo: 1) y $139.954 para la tonelada de 
-yerba mate canchada (tipo: 2) ✅ 
-
-Además, debe ingresar la forma de pago por teclado, la cual si es en efectivo (1) 
-recibe un 5% de descuento adicional y si es por tarjeta de crédito se aplica un
-10% de recargo y pagaré un 15% de recargo. ✅ 
-
-Formas de pago admitidas (no admitir otro tipo):
-1: efectivo
-2: tarjeta de crédito
-3: pagaré ✅ 
-
-Si además el comprador retira el producto no hay recargo pero si prefiere el envío 
-deberá abonar un adicional de $ 50.000 por cada 100KM, con lo cual el comprador 
-debe indicar a cuantos km se encuentra desde el punto de venta.
-
-Mostrar un mensaje que indique el producto, total a comprar, el beneficio/ obtenido 
-por la cantidad comprada, mostrar el subtotal a pagar, por separado mostrar la bonificación
-ó recargo aplicado según forma de pago, y el importe total, forma de pago elegida, y mostrar 
-el recargo si prefiere el envío. Al finalizar la transacción debe mostrar por pantalla todos 
-los componentes que aplica al pago y el total obviamente (bien formateado como $).
-
-Controlar bien de no admitir valores incorrectos de tipo forma de pago y de tipo de yerba, en
-todo caso mostrar por pantalla cuales son los admitidos."""
 #Constantes con los precios de la yerba por tonelada
 PRECIO_TONELADA_HOJA_VERDE = 36830
 PRECIO_TONELADA_YERBA_CANCHADA = 139954
-
+#Función que define el tipo de yerba
+def definir_tipo_yerba():
+    while True:
+        try:
+            tipo_yerba = int(input("Los tipos de yerba disponibles son: \n1. Yerba de hoja verde, con un precio por tonelada de $36.830\n2. Yerba Canchada, con un precio por tonelada de $139.954\nIngrese ahora su opción: "))
+            if tipo_yerba == 1 or tipo_yerba == 2:
+                return tipo_yerba
+            else:
+                print("Opción inválida. Intente nuevamente.")
+        except ValueError:
+            print("ERROR: Debe ingresar sólo números enteros entre 1 y 2.")
+#Función que determina la cantidad de toneladas a comprar
+def toneladas_a_comprar_fn():
+    while True:
+        try:
+            toneladas_a_comprar = int(input("Ingrese la cantidad de toneladas que desea comprar: "))
+            confirmar = input(f"Usted ha ingresado {toneladas_a_comprar} toneladas. ¿Es correcto? (S/N): ")
+            if confirmar.lower() == "s":
+                return toneladas_a_comprar
+            elif confirmar.lower() == "n":
+                continue
+            else:
+                print("Opción inválida. Intente nuevamente.")
+        except ValueError:
+            print("ERROR: Debe ingresar sólo números enteros para las toneladas a comprar. Intente nuevamente.")
+#Función que define el primer subtotal, el del producto entre el precio del tipo de yerba y su cantidad
+def definir_subtotal(cantidad_toneladas, tipo_yerba):
+    if tipo_yerba == 1:
+        return cantidad_toneladas * PRECIO_TONELADA_HOJA_VERDE
+    elif tipo_yerba == 2:
+        return cantidad_toneladas * PRECIO_TONELADA_YERBA_CANCHADA
+#Función que aplica el descuento por cantidad, así como guardar el beneficio obtenido para la impresión final
+def descuento_por_cantidad(subtotal, cantidad_toneladas):
+    beneficio = 0
+    if cantidad_toneladas >= 1 and cantidad_toneladas < 2:
+        beneficio = ((subtotal * 10)/100)
+    elif cantidad_toneladas >= 2 and cantidad_toneladas < 5:
+        beneficio = ((subtotal * 20)/100)
+    elif cantidad_toneladas >= 5:
+        beneficio = ((subtotal * 35)/100)
+    subtotal_con_descuento = subtotal - beneficio
+    return beneficio, subtotal_con_descuento
+#Función que define la forma de pago de la compra
+def definir_forma_de_pago():
+    opciones_validas = [1,2,3]
+    while True:
+        try:
+            forma_de_pago = int(input("Formas de pago admitidas:\n1. Efectivo\n2. Tarjeta de crédito\n3. Pagaré\nIngrese ahora: "))
+            if forma_de_pago not in opciones_validas:
+                print("Forma de pago inválida, intente nuevamente.")
+            else:
+                return forma_de_pago
+        except ValueError:
+            print("ERROR: debe ingresar solo números del 1 al 3. Intente nuevamente.")
+#Función que aplica descuento o recargo según la forma de pago elegida, así como guardar si es un descuento o un recargo con tipo de operación, para hacer más legible el mensaje final
+def aplicar_descuento_o_recargo(subtotal, forma_de_pago):
+    tipo_operacion = 1
+    if forma_de_pago == 1:
+        subtotal = subtotal - ((subtotal * 5)/100)
+        tipo_operacion = 1
+    elif forma_de_pago == 2:
+        subtotal = subtotal + ((subtotal * 10)/100)
+        tipo_operacion = 2
+    elif forma_de_pago == 3:
+        subtotal = subtotal + ((subtotal * 15)/100)
+        tipo_operacion = 2
+    return subtotal, tipo_operacion
+#Función que define el monto del envío
 def envio_fn():
     adicional_envio = 0
-    while envio != "s":
+    envio = ""
+    while True:
         opciones_validas = ["s","n"]
         envio = input("¿Desea envio? (S/N): ").lower()
         if envio not in opciones_validas:
@@ -50,43 +85,36 @@ def envio_fn():
                     km_envio = int(input("Ingrese la cantidad de kilómetros que debe recorrer el envio: "))
                     if km_envio >= 100:
                         adicional_envio = int((km_envio / 100)) * 50000
-                        print(adicional_envio)
                         return adicional_envio
                     else:
-                        print(adicional_envio)
                         return adicional_envio
                 except ValueError:
                     print("ERROR: Debe ingresar un número entero para los kilómetros. Intente nuevamente.")
+#Función que imprime el mensaje final
+def mostrar_final(tipo_yerba, cantidad_toneladas, beneficio_cantidad_comprada, subtotal_inicial, descuento_o_recargo, cantidad_descuento_o_recargo, envio, total_final):
+    if tipo_yerba == 1:
+        tipo_yerba_verboso = "Hoja Verde"
+    else:
+        tipo_yerba_verboso = "Yerba canchada"
+    print(f"El final de su orden queda de la siguiente manera: \nTipo de Yerba: {tipo_yerba_verboso}.\nCantidad de toneladas compradas: {cantidad_toneladas}\nSubTotal Inicial: ${subtotal_inicial}\nDescuento obtenido por la cantidad comprada: ${beneficio_cantidad_comprada}")
+    if descuento_o_recargo == 1:
+        print(f"Descuento Obtenido: ${abs(cantidad_descuento_o_recargo)}")
+    else:
+        print(f"Recargo aplicado: ${abs(cantidad_descuento_o_recargo)}")
+    print(f"Envio: ${envio}")
+    print(f"Su total final es de: ${total_final}")
+#Función de ejecución del resto de funciones
+def ejecucion():
+    tipo_yerba = definir_tipo_yerba()
+    cantidad_toneladas = toneladas_a_comprar_fn()
+    subtotal = definir_subtotal(cantidad_toneladas, tipo_yerba)
+    beneficio, subtotal_descontado_cantidad = descuento_por_cantidad(subtotal, cantidad_toneladas)
+    forma_de_pago = definir_forma_de_pago()
+    subtotal_descontado_o_recargado, tipo_operacion = aplicar_descuento_o_recargo(subtotal_descontado_cantidad, forma_de_pago)
+    beneficio_forma_pago = subtotal_descontado_cantidad - subtotal_descontado_o_recargado
+    cantidad_envio = envio_fn()
+    total_final = subtotal_descontado_o_recargado + cantidad_envio
+    mostrar_final(tipo_yerba, cantidad_toneladas, beneficio, subtotal, tipo_operacion, beneficio_forma_pago, cantidad_envio, total_final)
 
-def descuento_por_cantidad(subtotal, cantidad_comprar_toneladas):
-    if cantidad_comprar_toneladas >= 1 and cantidad_comprar_toneladas < 2:
-        subtotal = subtotal - ((subtotal * 10)/100)
-    elif cantidad_comprar_toneladas >= 2 and cantidad_comprar_toneladas < 5:
-        subtotal = subtotal - ((subtotal * 20)/100)
-    elif cantidad_comprar_toneladas >= 5:
-        subtotal = subtotal - ((subtotal * 30)/100)
-    return subtotal
-
-def forma_de_pago_fn():
-    opciones_validas = [1,2,3]
-    while True:
-        try:
-            forma_de_pago = int(input("Formas de pago admitidas:\n1. Efectivo\n2. Tarjeta de crédito\n3. Pagaré\nIngrese ahora: "))
-            if forma_de_pago not in opciones_validas:
-                print("Forma de pago inválida, intente nuevamente.")
-            else:
-                return forma_de_pago
-        except ValueError:
-            print("ERROR: debe ingresar solo números del 1 al 3. Intente nuevamente.")
-
-def aplicar_descuento_o_recargo(subtotal, forma_de_pago):
-    if forma_de_pago == 1:
-        subtotal = subtotal - ((subtotal * 5)/100)
-        return subtotal
-    elif forma_de_pago == 2:
-        subtotal = subtotal + ((subtotal * 10)/100)
-    elif forma_de_pago == 3:
-        subtotal = subtotal + ((subtotal * 15)/100)
-
-
-envio_fn()
+#Llamada de la función de ejecución
+ejecucion()
