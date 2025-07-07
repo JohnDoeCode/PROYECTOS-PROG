@@ -1,3 +1,8 @@
+"""
+Alumnos:
+* Corti Pedro Pablo
+* Franzois Guillermo Arturo Nestor
+"""
 #Constantes con los precios de la yerba por tonelada
 PRECIO_TONELADA_HOJA_VERDE = 36830
 PRECIO_TONELADA_YERBA_CANCHADA = 139954
