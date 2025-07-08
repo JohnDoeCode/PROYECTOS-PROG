@@ -242,6 +242,113 @@ def listar_productos():
     print("La lista de productos es la siguiente: ")
     print(f"{resultados}")
     return resultados
+
+
+#funciones proveedores
+def agregar_proveedor():
+    conexion = sqlite3.connect("kiosko.db")
+    cursor = conexion.cursor()
+    nombre = input("Ingrese el nombre del proveedor: ")
+    contacto = input("Ingrese el contacto del proveedor: ")
+    cursor.execute("INSERT INTO proveedores (nombre, contacto, estado) VALUES (?, ?, 1)",
+    (nombre, contacto))
+    conexion.commit()
+    conexion.close()
+    print("Proveedor agregado correctamente.")
+
+def modificar_proveedor():
+    conexion = sqlite3.connect("kiosko.db")
+    cursor = conexion.cursor()
+    nombre_actual = ""
+    contacto_actual = ""
+    while True:
+        try:
+            id_prov_mod = int(input("Ingrese el id del proveedor a modificar: "))
+            cursor.execute("SELECT * FROM proveedores WHERE id_proveedor == ? AND estado == 1", (id_prov_mod,))
+            proveedor = cursor.fetchone()
+            if proveedor is not None:
+                print("Proveedor encontrado:", proveedor)
+                nombre_actual = proveedor[1]
+                contacto_actual = proveedor[2]
+                break
+            else:
+                print("No existe un proveedor activo con ese ID.")
+                return None
+        except ValueError:
+            print("ERROR: Debe ingresar un número entero.")
+            continue
+    cant_atributos_modificar = int(input("Ingrese la cantidad de atributos que desea modificar (Ingrese 0 para cancelar): "))
+    if cant_atributos_modificar != 0 and cant_atributos_modificar >= 1 and cant_atributos_modificar <= 2:
+        while cant_atributos_modificar != 0:
+            try:
+                op_validas = [1,2]
+                atributo_modificar = int(input("¿Que atributo desea modificar? Ingrese su número correspondiente:\n1. Nombre\n2. Contacto\n Ingrese ahora: "))
+                if atributo_modificar not in op_validas:
+                    print("Error: Ingrese una opción válida (1,2).")
+                    continue
+                else:
+                    match atributo_modificar:
+                        case 1:
+                            nombre_mod = input("Ingrese el nuevo nombre o presione ENTER para conservar: ")
+                            if es_vacia(nombre_mod) == True:
+                                nombre_ant = nombre_actual
+                                nombre_actual = nombre_mod
+                                print(f"Nombre actualizado correctamente!\nValor anterior: {nombre_ant}\nValor actualizado: {nombre_actual}")
+                            else:
+                                print("Conservando valor.")
+                        case 2:
+                            contacto_mod = input("Ingrese el nuevo contacto o presione ENTER para conservar: ")
+                            if es_vacia(contacto_mod) == True:
+                                contacto_ant = contacto_actual
+                                contacto_actual = contacto_mod
+                                print(f"Contacto actualizado correctamente!\nValor anterior: {contacto_ant}\nValor actualizado: {contacto_actual}")
+                            else:
+                                print("Conservando valor.")
+                cant_atributos_modificar = cant_atributos_modificar-1
+            except ValueError:
+                print("ERROR: Debe ingresar un número entero.")
+        cursor.execute("UPDATE proveedores SET nombre=?, contacto=? WHERE id_proveedor=?",
+            (nombre_actual, contacto_actual, id_prov_mod))
+        conexion.commit()
+        conexion.close()
+        print("Proveedor modificado exitosamente.")
+
+def desactivar_proveedor():
+    conexion = sqlite3.connect("kiosko.db")
+    cursor = conexion.cursor()
+    while True:
+        try:
+            id_prov_des = int(input("Ingrese el id del proveedor a desactivar: "))
+            cursor.execute("SELECT * FROM proveedores WHERE id_proveedor == ? AND estado == 1", (id_prov_des,))
+            proveedor = cursor.fetchone()
+            if proveedor is not None:
+                print("Proveedor encontrado:", proveedor)
+                confirmacion = confirmarFN()
+                if confirmacion == True:
+                    cursor.execute("UPDATE proveedores SET estado=? WHERE id_proveedor=?",
+                    (0,id_prov_des))
+                    conexion.commit()
+                    conexion.close()
+                    print("El proveedor ha sido desactivado exitosamente.")
+                    break
+                else:
+                    print("Cancelando. Volviendo al menú.")
+                    break
+            else:
+                print("No existe un proveedor activo con ese ID.")
+                return None
+        except ValueError:
+            print("ERROR: Debe ingresar un número entero.")
+            continue
+
+def listar_proveedores():
+    conexion = sqlite3.connect("kiosko.db")
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM proveedores WHERE estado == 1")
+    resultados = cursor.fetchall()
+    print("La lista de proveedores es la siguiente: ")
+    print(f"{resultados}")
+    return resultados
 #menu productos
 """mostrar_menus(1)"""
 
@@ -250,7 +357,7 @@ def listar_productos():
 
 """menu_principal()"""
 #agregar_producto()
-listar_productos()
-desactivar_productos()
+#listar_productos()
+#desactivar_productos()
 #modificar_producto()
-listar_productos()
+#listar_productos()
